@@ -106,7 +106,7 @@ prisma
 Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/REPOSITORY_NAME.git
+git clone https://github.com/PYadav70/RollNo-2301920130122.git
 ```
 
 Move into the project
