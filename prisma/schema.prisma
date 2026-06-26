@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum NotificationType {
+  EVENT
+  RESULT
+  PLACEMENT
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  id              Int             @id @default(autoincrement())
+  name            String
+  email           String          @unique
+
+  notifications   Notification[]
+  deviceTokens    DeviceToken[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Notification {
+
+  id            Int      @id @default(autoincrement())
+
+  title         String
+
+  message       String
+
+  type          NotificationType
+
+  priority      NotificationPriority
+
+  isRead        Boolean @default(false)
+
+  userId        Int
+
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  delivery      NotificationDelivery?
+
+  createdAt     DateTime @default(now())
+
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId,isRead,createdAt])
+}
+
+model NotificationDelivery {
+
+  id              Int @id @default(autoincrement())
+
+  notificationId  Int @unique
+
+  notification    Notification @relation(fields:[notificationId],references:[id],onDelete:Cascade)
+
+  status          DeliveryStatus @default(PENDING)
+
+  deliveredAt     DateTime?
+
+  createdAt       DateTime @default(now())
+}
+
+model DeviceToken {
+
+  id        Int @id @default(autoincrement())
+
+  token     String @unique
+
+  userId    Int
+
+  user      User @relation(fields:[userId],references:[id],onDelete:Cascade)
+
+  createdAt DateTime @default(now())
+}
