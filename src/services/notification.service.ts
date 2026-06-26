@@ -26,13 +26,6 @@ export class NotificationService {
     return this.repository.findPaginated(page, limit);
 }
 
-async getUnread(userId: number) {
-    return this.repository.getUnread(userId);
-}
-
-async unreadCount(userId: number) {
-    return this.repository.unreadCount(userId);
-}
 
 async markAllRead(userId: number) {
     return this.repository.markAllRead(userId);

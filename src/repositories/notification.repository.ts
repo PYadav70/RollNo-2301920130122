@@ -13,6 +13,7 @@ export interface CreateNotificationDto {
 }
 
 export class NotificationRepository {
+  // Create Notification
   async create(data: CreateNotificationDto) {
     return prisma.notification.create({
       data,
@@ -22,17 +23,7 @@ export class NotificationRepository {
     });
   }
 
-  async markAllRead(userId: number) {
-    return prisma.notification.updateMany({
-        where: {
-            userId,
-            isRead: false
-        },
-        data: {
-            isRead: true
-        }
-    });
-}
+  // Get All Notifications
   async findAll() {
     return prisma.notification.findMany({
       include: {
@@ -44,64 +35,64 @@ export class NotificationRepository {
     });
   }
 
+  // Get Notification By ID
   async findById(id: number) {
     return prisma.notification.findUnique({
-      where: { id },
+      where: {
+        id,
+      },
       include: {
         user: true,
       },
     });
   }
 
+  // Pagination
+  async findPaginated(page: number, limit: number) {
+    return prisma.notification.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
+
+  
+  // Mark Single Notification Read
   async markAsRead(id: number) {
     return prisma.notification.update({
-      where: { id },
+      where: {
+        id,
+      },
       data: {
         isRead: true,
       },
     });
   }
 
-  async findPaginated(page: number, limit: number) {
-    return prisma.notification.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: {
-            createdAt: "desc"
-        },
-        include: {
-            user: true
-        }
+  // Mark All Notifications Read
+  async markAllRead(userId: number) {
+    return prisma.notification.updateMany({
+      where: {
+        userId,
+        isRead: false,
+      },
+      data: {
+        isRead: true,
+      },
     });
-}
+  }
 
-async getUnread(userId: number) {
-    return prisma.notification.findMany({
-        where: {
-            userId,
-            isRead: false
-        },
-        orderBy: {
-            createdAt: "desc"
-        },
-        include: {
-            user: true
-        }
-    });
-}
-
-async unreadCount(userId: number) {
-    return prisma.notification.count({
-        where: {
-            userId,
-            isRead: false
-        }
-    });
-}
+  // Delete Notification
   async delete(id: number) {
     return prisma.notification.delete({
-      where: { id },
+      where: {
+        id,
+      },
     });
   }
 }
-

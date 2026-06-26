@@ -1,123 +1,121 @@
-import prisma from "../config/database";
-import {
-  NotificationPriority,
-  NotificationType,
-} from "@prisma/client";
+import { Request, Response } from "express";
+import { NotificationService } from "../services/notification.service";
 
-export interface CreateNotificationDto {
-  title: string;
-  message: string;
-  type: NotificationType;
-  priority: NotificationPriority;
-  userId: number;
-}
+const service = new NotificationService();
 
-export class NotificationRepository {
+export class NotificationController {
   // Create Notification
-  async create(data: CreateNotificationDto) {
-    return prisma.notification.create({
-      data,
-      include: {
-        user: true,
-      },
-    });
+  async create(req: Request, res: Response) {
+    try {
+      const notification = await service.create(req.body);
+
+      return res.status(201).json({
+        success: true,
+        data: notification,
+      });
+    } catch (error: any) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 
-  // Get All Notifications
-  async findAll() {
-    return prisma.notification.findMany({
-      include: {
-        user: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  // Get Paginated Notifications
+  async getPaginated(req: Request, res: Response) {
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const notifications = await service.getPaginated(page, limit);
+
+      return res.status(200).json({
+        success: true,
+        page,
+        limit,
+        data: notifications,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 
   // Get Notification By ID
-  async findById(id: number) {
-    return prisma.notification.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        user: true,
-      },
-    });
+  async getById(req: Request, res: Response) {
+    try {
+      const notification = await service.getById(
+        Number(req.params.id)
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: notification,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 
-  // Pagination
-  async findPaginated(page: number, limit: number) {
-    return prisma.notification.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        user: true,
-      },
-    });
+  // Mark Single Notification As Read
+  async markAsRead(req: Request, res: Response) {
+    try {
+      const notification = await service.markAsRead(
+        Number(req.params.id)
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: notification,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 
-  // Get Unread Notifications
-  async getUnread(userId: number) {
-    return prisma.notification.findMany({
-      where: {
-        userId,
-        isRead: false,
-      },
-      include: {
-        user: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  // Mark All Notifications As Read
+  async markAllRead(req: Request, res: Response) {
+    try {
+      const result = await service.markAllRead(
+        Number(req.params.userId)
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "All notifications marked as read",
+        updatedCount: result.count,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 
-  // Count Unread Notifications
-  async unreadCount(userId: number) {
-    return prisma.notification.count({
-      where: {
-        userId,
-        isRead: false,
-      },
-    });
-  }
-
-  // Mark Single Notification Read
-  async markAsRead(id: number) {
-    return prisma.notification.update({
-      where: {
-        id,
-      },
-      data: {
-        isRead: true,
-      },
-    });
-  }
-
-  // Mark All Notifications Read
-  async markAllRead(userId: number) {
-    return prisma.notification.updateMany({
-      where: {
-        userId,
-        isRead: false,
-      },
-      data: {
-        isRead: true,
-      },
-    });
-  }
-
+  
   // Delete Notification
-  async delete(id: number) {
-    return prisma.notification.delete({
-      where: {
-        id,
-      },
-    });
+  async delete(req: Request, res: Response) {
+    try {
+      await service.delete(Number(req.params.id));
+
+      return res.status(200).json({
+        success: true,
+        message: "Notification deleted successfully",
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 }
