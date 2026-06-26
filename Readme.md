@@ -153,7 +153,7 @@ npm run dev
 
 ---
 
-# 📚 API Endpoints
+#  API Endpoints
 
 ## Users
 
@@ -182,7 +182,7 @@ npm run dev
 
 ---
 
-# 🗃 Database
+# Database
 
 ### User
 
@@ -216,7 +216,7 @@ The APIs can be tested using:
 
 ---
 
-# 🚀 Future Improvements
+# Future Improvements
 
 * JWT Authentication
 * Role-Based Access Control (RBAC)
@@ -234,7 +234,7 @@ The APIs can be tested using:
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 **Pappu Kumar Yadav**
 
